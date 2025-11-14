@@ -8,6 +8,7 @@ import RideRequests from './components/RideRequests';
 import RideHistory from './components/RideHistory';
 import Footer from './components/Footer';
 import Toast from './components/Toast';
+import TestRunner from './components/TestRunner';
 
 function App() {
   const [currentRickshawId, setCurrentRickshawId] = useState(null);
@@ -18,6 +19,7 @@ function App() {
   const [rideHistory, setRideHistory] = useState([]);
   const [isConnected, setIsConnected] = useState(false);
   const [toast, setToast] = useState({ show: false, message: '', type: 'success' });
+  const [showTesting, setShowTesting] = useState(false);
 
   // Firebase connection check
   useEffect(() => {
@@ -92,20 +94,20 @@ function App() {
     return () => unsubscribe();
   }, [currentRickshawId]);
 
-  // Listen for active rides
+  // Listen for active rides (updated for AERAS)
   useEffect(() => {
     if (!currentRickshawId) {
       setActiveRide(null);
       return;
     }
 
-    const ridesRef = ref(database, 'rides');
-    const unsubscribe = onValue(ridesRef, (snapshot) => {
+    const activeRidesRef = ref(database, 'active_rides');
+    const unsubscribe = onValue(activeRidesRef, (snapshot) => {
       const data = snapshot.val();
       if (data) {
         const active = Object.values(data).find(
           ride => ride.rickshaw_id === currentRickshawId && 
-                 (ride.status === 'accepted' || ride.status === 'in_progress')
+                 (ride.status === 'accepted' || ride.status === 'picked_up')
         );
         setActiveRide(active || null);
       } else {
@@ -116,20 +118,20 @@ function App() {
     return () => unsubscribe();
   }, [currentRickshawId]);
 
-  // Load ride history
+  // Load ride history (updated for AERAS)
   useEffect(() => {
     if (!currentRickshawId) {
       setRideHistory([]);
       return;
     }
 
-    const ridesRef = ref(database, 'rides');
-    const unsubscribe = onValue(ridesRef, (snapshot) => {
+    const completedRidesRef = ref(database, 'completed_rides');
+    const unsubscribe = onValue(completedRidesRef, (snapshot) => {
       const data = snapshot.val();
       if (data) {
         const history = Object.values(data)
-          .filter(ride => ride.rickshaw_id === currentRickshawId && ride.status === 'completed')
-          .sort((a, b) => new Date(b.dropoff_time) - new Date(a.dropoff_time))
+          .filter(ride => ride.rickshaw_id === currentRickshawId)
+          .sort((a, b) => b.dropoff_time - a.dropoff_time)
           .slice(0, 10);
         setRideHistory(history);
         console.log(`✅ Loaded ${history.length} completed rides`);
@@ -171,26 +173,43 @@ function App() {
 
       <main className="main-content">
         <div className="container">
-          <StatisticsCards currentRickshaw={currentRickshaw} />
-          
-          {activeRide && (
-            <ActiveRide
-              activeRide={activeRide}
-              currentRickshawId={currentRickshawId}
-              currentRickshaw={currentRickshaw}
-              showToast={showToast}
-            />
+          {/* Testing Toggle Button */}
+          <div className="testing-toggle">
+            <button 
+              className={`btn ${showTesting ? 'btn-danger' : 'btn-info'}`}
+              onClick={() => setShowTesting(!showTesting)}
+            >
+              <i className={`fas ${showTesting ? 'fa-times' : 'fa-flask'}`}></i>
+              {showTesting ? 'Close Testing' : 'Run Automated Tests'}
+            </button>
+          </div>
+
+          {showTesting ? (
+            <TestRunner />
+          ) : (
+            <>
+              <StatisticsCards currentRickshaw={currentRickshaw} />
+              
+              {activeRide && (
+                <ActiveRide
+                  activeRide={activeRide}
+                  currentRickshawId={currentRickshawId}
+                  currentRickshaw={currentRickshaw}
+                  showToast={showToast}
+                />
+              )}
+
+              <RideRequests
+                pendingRequests={pendingRequests}
+                currentRickshawId={currentRickshawId}
+                showToast={showToast}
+              />
+
+              <RideHistory
+                rideHistory={rideHistory}
+              />
+            </>
           )}
-
-          <RideRequests
-            pendingRequests={pendingRequests}
-            currentRickshawId={currentRickshawId}
-            showToast={showToast}
-          />
-
-          <RideHistory
-            rideHistory={rideHistory}
-          />
         </div>
       </main>
 

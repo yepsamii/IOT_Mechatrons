@@ -1,51 +1,99 @@
 {
-  "stations": {
-    "station_1": {
-      "id": "station_1",
-      "name": "Station A - University Gate",
-      "location": {
-        "lat": 22.4593,
-        "lng": 91.9871
+  "location_blocks": {
+    "cuet_campus": {
+      "id": "cuet_campus",
+      "name": "CUET Campus",
+      "coordinates": {
+        "lat": 22.4633,
+        "lng": 91.9714
       },
       "status": "active",
-      "created_at": "2025-11-14T10:00:00Z"
+      "busy": false,
+      "total_requests": 0
     },
-    "station_2": {
-      "id": "station_2",
-      "name": "Station B - City Center",
-      "location": {
-        "lat": 22.4623,
-        "lng": 91.9901
+    "pahartali": {
+      "id": "pahartali",
+      "name": "Pahartali",
+      "coordinates": {
+        "lat": 22.4725,
+        "lng": 91.9845
       },
       "status": "active",
-      "created_at": "2025-11-14T10:00:00Z"
+      "busy": false,
+      "total_requests": 0
     },
-    "station_3": {
-      "id": "station_3",
-      "name": "Station C - Market Area",
-      "location": {
-        "lat": 22.4653,
-        "lng": 91.9931
+    "noapara": {
+      "id": "noapara",
+      "name": "Noapara",
+      "coordinates": {
+        "lat": 22.4580,
+        "lng": 91.9920
       },
       "status": "active",
-      "created_at": "2025-11-14T10:00:00Z"
+      "busy": false,
+      "total_requests": 0
+    },
+    "raojan": {
+      "id": "raojan",
+      "name": "Raojan",
+      "coordinates": {
+        "lat": 22.4520,
+        "lng": 91.9650
+      },
+      "status": "active",
+      "busy": false,
+      "total_requests": 0
     }
   },
   "users": {
     "user_1": {
       "id": "user_1",
       "name": "Ahmed Hassan",
-      "privilege_type": "premium",
+      "age": 65,
+      "user_type": "senior_citizen",
       "laser_id": "LASER_001",
-      "total_rides": 0,
+      "privilege_verified": true,
+      "total_rides": 8,
       "created_at": "2025-11-14T10:00:00Z"
     },
     "user_2": {
       "id": "user_2",
-      "name": "Fatima Khan",
-      "privilege_type": "standard",
+      "name": "Fatima Begum",
+      "age": 68,
+      "user_type": "senior_citizen",
       "laser_id": "LASER_002",
-      "total_rides": 0,
+      "privilege_verified": true,
+      "total_rides": 5,
+      "created_at": "2025-11-14T10:00:00Z"
+    },
+    "user_3": {
+      "id": "user_3",
+      "name": "Rahim Khan",
+      "age": 25,
+      "user_type": "special_needs",
+      "laser_id": "LASER_003",
+      "privilege_verified": true,
+      "total_rides": 3,
+      "created_at": "2025-11-14T10:00:00Z"
+    },
+    "user_4": {
+      "id": "user_4",
+      "name": "Salma Khatun",
+      "age": 72,
+      "user_type": "senior_citizen",
+      "laser_id": "LASER_004",
+      "privilege_verified": true,
+      "total_rides": 12,
+      "created_at": "2025-11-14T10:00:00Z"
+    },
+    "user_5": {
+      "id": "user_5",
+      "name": "Kamal Uddin",
+      "age": 70,
+      "user_type": "senior_citizen",
+      "laser_id": "LASER_005",
+      "privilege_verified": true,
+      "total_rides": 6,
       "created_at": "2025-11-14T10:00:00Z"
     }
   },
@@ -54,90 +102,540 @@
       "id": "rickshaw_1",
       "puller_name": "Karim Ahmed",
       "license_number": "DH-RICK-001",
-      "current_station": "station_1",
+      "phone": "+8801712345601",
+      "current_location": {
+        "lat": 22.4633,
+        "lng": 91.9714
+      },
       "status": "available",
-      "total_points": 0,
-      "total_rides": 0,
-      "rating": 5.0,
-      "created_at": "2025-11-14T10:00:00Z"
+      "total_points": 145,
+      "total_rides": 18,
+      "rating": 4.8,
+      "created_at": "2025-11-01T10:00:00Z"
     },
     "rickshaw_2": {
       "id": "rickshaw_2",
-      "puller_name": "Rahim Khan",
+      "puller_name": "Rafiq Islam",
       "license_number": "DH-RICK-002",
-      "current_station": "station_2",
+      "phone": "+8801712345602",
+      "current_location": {
+        "lat": 22.4725,
+        "lng": 91.9845
+      },
       "status": "available",
-      "total_points": 0,
-      "total_rides": 0,
-      "rating": 5.0,
-      "created_at": "2025-11-14T10:00:00Z"
+      "total_points": 98,
+      "total_rides": 12,
+      "rating": 4.6,
+      "created_at": "2025-11-02T10:00:00Z"
+    },
+    "rickshaw_3": {
+      "id": "rickshaw_3",
+      "puller_name": "Shahid Miah",
+      "license_number": "DH-RICK-003",
+      "phone": "+8801712345603",
+      "current_location": {
+        "lat": 22.4580,
+        "lng": 91.9920
+      },
+      "status": "available",
+      "total_points": 72,
+      "total_rides": 9,
+      "rating": 4.5,
+      "created_at": "2025-11-03T10:00:00Z"
+    },
+    "rickshaw_4": {
+      "id": "rickshaw_4",
+      "puller_name": "Jalal Uddin",
+      "license_number": "DH-RICK-004",
+      "phone": "+8801712345604",
+      "current_location": {
+        "lat": 22.4520,
+        "lng": 91.9650
+      },
+      "status": "available",
+      "total_points": 120,
+      "total_rides": 15,
+      "rating": 4.7,
+      "created_at": "2025-11-04T10:00:00Z"
+    },
+    "rickshaw_5": {
+      "id": "rickshaw_5",
+      "puller_name": "Motin Ali",
+      "license_number": "DH-RICK-005",
+      "phone": "+8801712345605",
+      "current_location": {
+        "lat": 22.4633,
+        "lng": 91.9714
+      },
+      "status": "available",
+      "total_points": 55,
+      "total_rides": 7,
+      "rating": 4.4,
+      "created_at": "2025-11-05T10:00:00Z"
     }
   },
-  "rides": {},
   "ride_requests": {
-    "example_request": {
-      "id": "example_request",
+    "req_demo_001": {
+      "id": "req_demo_001",
       "user_id": "user_1",
-      "pickup_station": "station_1",
-      "dropoff_station": "station_2",
+      "pickup_block": "cuet_campus",
+      "dropoff_block": "pahartali",
       "distance_km": 2.5,
       "estimated_fare": 40,
-      "estimated_points": 8,
+      "estimated_points": 10,
       "privilege_verified": true,
       "status": "pending",
-      "timestamp": "2025-11-14T12:00:00Z",
-      "rejected_by": []
+      "timestamp": 1731582000000,
+      "rejected_by": [],
+      "assigned_rickshaw": null,
+      "led_status": "waiting"
+    },
+    "req_demo_002": {
+      "id": "req_demo_002",
+      "user_id": "user_2",
+      "pickup_block": "noapara",
+      "dropoff_block": "raojan",
+      "distance_km": 2.8,
+      "estimated_fare": 45,
+      "estimated_points": 11,
+      "privilege_verified": true,
+      "status": "pending",
+      "timestamp": 1731582060000,
+      "rejected_by": [],
+      "assigned_rickshaw": null,
+      "led_status": "waiting"
+    }
+  },
+  "active_rides": {},
+  "completed_rides": {
+    "ride_001": {
+      "id": "ride_001",
+      "request_id": "req_001",
+      "user_id": "user_1",
+      "rickshaw_id": "rickshaw_1",
+      "pickup_block": "cuet_campus",
+      "dropoff_block": "pahartali",
+      "distance_km": 2.5,
+      "fare": 40,
+      "points_earned": 10,
+      "status": "completed",
+      "request_time": 1731400000000,
+      "accept_time": 1731400010000,
+      "pickup_time": 1731400300000,
+      "dropoff_time": 1731400900000,
+      "pickup_location": {
+        "lat": 22.4633,
+        "lng": 91.9714,
+        "accuracy": 10
+      },
+      "dropoff_location": {
+        "lat": 22.4725,
+        "lng": 91.9845,
+        "accuracy": 8
+      },
+      "dropoff_distance_from_block": 5.2,
+      "points_status": "rewarded"
+    },
+    "ride_002": {
+      "id": "ride_002",
+      "request_id": "req_002",
+      "user_id": "user_2",
+      "rickshaw_id": "rickshaw_1",
+      "pickup_block": "pahartali",
+      "dropoff_block": "noapara",
+      "distance_km": 2.0,
+      "fare": 38,
+      "points_earned": 8,
+      "status": "completed",
+      "request_time": 1731410000000,
+      "accept_time": 1731410015000,
+      "pickup_time": 1731410400000,
+      "dropoff_time": 1731410950000,
+      "pickup_location": {
+        "lat": 22.4725,
+        "lng": 91.9845,
+        "accuracy": 12
+      },
+      "dropoff_location": {
+        "lat": 22.4582,
+        "lng": 91.9920,
+        "accuracy": 15
+      },
+      "dropoff_distance_from_block": 22.3,
+      "points_status": "rewarded"
+    },
+    "ride_003": {
+      "id": "ride_003",
+      "request_id": "req_003",
+      "user_id": "user_3",
+      "rickshaw_id": "rickshaw_1",
+      "pickup_block": "noapara",
+      "dropoff_block": "cuet_campus",
+      "distance_km": 1.8,
+      "fare": 35,
+      "points_earned": 5,
+      "status": "completed",
+      "request_time": 1731420000000,
+      "accept_time": 1731420012000,
+      "pickup_time": 1731420350000,
+      "dropoff_time": 1731420800000,
+      "pickup_location": {
+        "lat": 22.4580,
+        "lng": 91.9920,
+        "accuracy": 9
+      },
+      "dropoff_location": {
+        "lat": 22.4640,
+        "lng": 91.9714,
+        "accuracy": 20
+      },
+      "dropoff_distance_from_block": 77.8,
+      "points_status": "reduced"
+    },
+    "ride_004": {
+      "id": "ride_004",
+      "request_id": "req_004",
+      "user_id": "user_4",
+      "rickshaw_id": "rickshaw_2",
+      "pickup_block": "cuet_campus",
+      "dropoff_block": "raojan",
+      "distance_km": 3.2,
+      "fare": 50,
+      "points_earned": 10,
+      "status": "completed",
+      "request_time": 1731430000000,
+      "accept_time": 1731430020000,
+      "pickup_time": 1731430450000,
+      "dropoff_time": 1731431200000,
+      "pickup_location": {
+        "lat": 22.4633,
+        "lng": 91.9714,
+        "accuracy": 7
+      },
+      "dropoff_location": {
+        "lat": 22.4520,
+        "lng": 91.9650,
+        "accuracy": 6
+      },
+      "dropoff_distance_from_block": 3.1,
+      "points_status": "rewarded"
+    },
+    "ride_005": {
+      "id": "ride_005",
+      "request_id": "req_005",
+      "user_id": "user_5",
+      "rickshaw_id": "rickshaw_2",
+      "pickup_block": "raojan",
+      "dropoff_block": "pahartali",
+      "distance_km": 4.5,
+      "fare": 60,
+      "points_earned": 0,
+      "status": "completed",
+      "request_time": 1731440000000,
+      "accept_time": 1731440025000,
+      "pickup_time": 1731440500000,
+      "dropoff_time": 1731441500000,
+      "pickup_location": {
+        "lat": 22.4520,
+        "lng": 91.9650,
+        "accuracy": 11
+      },
+      "dropoff_location": {
+        "lat": 22.4745,
+        "lng": 91.9865,
+        "accuracy": 25
+      },
+      "dropoff_distance_from_block": 165.4,
+      "points_status": "pending"
+    },
+    "ride_006": {
+      "id": "ride_006",
+      "request_id": "req_006",
+      "user_id": "user_1",
+      "rickshaw_id": "rickshaw_3",
+      "pickup_block": "pahartali",
+      "dropoff_block": "cuet_campus",
+      "distance_km": 2.5,
+      "fare": 40,
+      "points_earned": 9,
+      "status": "completed",
+      "request_time": 1731450000000,
+      "accept_time": 1731450018000,
+      "pickup_time": 1731450420000,
+      "dropoff_time": 1731451000000,
+      "pickup_location": {
+        "lat": 22.4725,
+        "lng": 91.9845,
+        "accuracy": 8
+      },
+      "dropoff_location": {
+        "lat": 22.4634,
+        "lng": 91.9716,
+        "accuracy": 10
+      },
+      "dropoff_distance_from_block": 11.2,
+      "points_status": "rewarded"
+    },
+    "ride_007": {
+      "id": "ride_007",
+      "request_id": "req_007",
+      "user_id": "user_2",
+      "rickshaw_id": "rickshaw_4",
+      "pickup_block": "cuet_campus",
+      "dropoff_block": "noapara",
+      "distance_km": 1.8,
+      "fare": 35,
+      "points_earned": 7,
+      "status": "completed",
+      "request_time": 1731460000000,
+      "accept_time": 1731460022000,
+      "pickup_time": 1731460380000,
+      "dropoff_time": 1731460900000,
+      "pickup_location": {
+        "lat": 22.4633,
+        "lng": 91.9714,
+        "accuracy": 9
+      },
+      "dropoff_location": {
+        "lat": 22.4585,
+        "lng": 91.9925,
+        "accuracy": 18
+      },
+      "dropoff_distance_from_block": 35.6,
+      "points_status": "rewarded"
+    },
+    "ride_008": {
+      "id": "ride_008",
+      "request_id": "req_008",
+      "user_id": "user_3",
+      "rickshaw_id": "rickshaw_5",
+      "pickup_block": "noapara",
+      "dropoff_block": "raojan",
+      "distance_km": 2.8,
+      "fare": 45,
+      "points_earned": 8,
+      "status": "completed",
+      "request_time": 1731470000000,
+      "accept_time": 1731470016000,
+      "pickup_time": 1731470400000,
+      "dropoff_time": 1731471100000,
+      "pickup_location": {
+        "lat": 22.4580,
+        "lng": 91.9920,
+        "accuracy": 12
+      },
+      "dropoff_location": {
+        "lat": 22.4522,
+        "lng": 91.9652,
+        "accuracy": 14
+      },
+      "dropoff_distance_from_block": 24.8,
+      "points_status": "rewarded"
+    }
+  },
+  "points_history": {
+    "ph_001": {
+      "id": "ph_001",
+      "ride_id": "ride_001",
+      "rickshaw_id": "rickshaw_1",
+      "base_points": 10,
+      "distance_penalty": 0.52,
+      "final_points": 10,
+      "status": "rewarded",
+      "gps_accuracy": 5.2,
+      "timestamp": 1731400900000,
+      "admin_reviewed": false
+    },
+    "ph_002": {
+      "id": "ph_002",
+      "ride_id": "ride_002",
+      "rickshaw_id": "rickshaw_1",
+      "base_points": 10,
+      "distance_penalty": 2.23,
+      "final_points": 8,
+      "status": "rewarded",
+      "gps_accuracy": 22.3,
+      "timestamp": 1731410950000,
+      "admin_reviewed": false
+    },
+    "ph_003": {
+      "id": "ph_003",
+      "ride_id": "ride_003",
+      "rickshaw_id": "rickshaw_1",
+      "base_points": 10,
+      "distance_penalty": 7.78,
+      "final_points": 5,
+      "status": "reduced",
+      "gps_accuracy": 77.8,
+      "timestamp": 1731420800000,
+      "admin_reviewed": false
+    },
+    "ph_004": {
+      "id": "ph_004",
+      "ride_id": "ride_004",
+      "rickshaw_id": "rickshaw_2",
+      "base_points": 10,
+      "distance_penalty": 0.31,
+      "final_points": 10,
+      "status": "rewarded",
+      "gps_accuracy": 3.1,
+      "timestamp": 1731431200000,
+      "admin_reviewed": false
+    },
+    "ph_005": {
+      "id": "ph_005",
+      "ride_id": "ride_005",
+      "rickshaw_id": "rickshaw_2",
+      "base_points": 10,
+      "distance_penalty": 16.54,
+      "final_points": 0,
+      "status": "pending",
+      "gps_accuracy": 165.4,
+      "timestamp": 1731441500000,
+      "admin_reviewed": false
+    },
+    "ph_006": {
+      "id": "ph_006",
+      "ride_id": "ride_006",
+      "rickshaw_id": "rickshaw_3",
+      "base_points": 10,
+      "distance_penalty": 1.12,
+      "final_points": 9,
+      "status": "rewarded",
+      "gps_accuracy": 11.2,
+      "timestamp": 1731451000000,
+      "admin_reviewed": false
+    },
+    "ph_007": {
+      "id": "ph_007",
+      "ride_id": "ride_007",
+      "rickshaw_id": "rickshaw_4",
+      "base_points": 10,
+      "distance_penalty": 3.56,
+      "final_points": 7,
+      "status": "rewarded",
+      "gps_accuracy": 35.6,
+      "timestamp": 1731460900000,
+      "admin_reviewed": false
+    },
+    "ph_008": {
+      "id": "ph_008",
+      "ride_id": "ride_008",
+      "rickshaw_id": "rickshaw_5",
+      "base_points": 10,
+      "distance_penalty": 2.48,
+      "final_points": 8,
+      "status": "rewarded",
+      "gps_accuracy": 24.8,
+      "timestamp": 1731471100000,
+      "admin_reviewed": false
     }
   },
   "fare_matrix": {
-    "station_1_to_station_2": {
-      "from": "station_1",
-      "to": "station_2",
+    "cuet_campus_to_pahartali": {
+      "from": "cuet_campus",
+      "to": "pahartali",
       "distance_km": 2.5,
       "base_fare": 40,
-      "points": 8
-    },
-    "station_1_to_station_3": {
-      "from": "station_1",
-      "to": "station_3",
-      "distance_km": 3.5,
-      "base_fare": 50,
       "points": 10
     },
-    "station_2_to_station_1": {
-      "from": "station_2",
-      "to": "station_1",
+    "cuet_campus_to_noapara": {
+      "from": "cuet_campus",
+      "to": "noapara",
+      "distance_km": 1.8,
+      "base_fare": 35,
+      "points": 8
+    },
+    "cuet_campus_to_raojan": {
+      "from": "cuet_campus",
+      "to": "raojan",
+      "distance_km": 3.2,
+      "base_fare": 50,
+      "points": 12
+    },
+    "pahartali_to_cuet_campus": {
+      "from": "pahartali",
+      "to": "cuet_campus",
       "distance_km": 2.5,
       "base_fare": 40,
-      "points": 8
-    },
-    "station_2_to_station_3": {
-      "from": "station_2",
-      "to": "station_3",
-      "distance_km": 1.5,
-      "base_fare": 30,
-      "points": 6
-    },
-    "station_3_to_station_1": {
-      "from": "station_3",
-      "to": "station_1",
-      "distance_km": 3.5,
-      "base_fare": 50,
       "points": 10
     },
-    "station_3_to_station_2": {
-      "from": "station_3",
-      "to": "station_2",
-      "distance_km": 1.5,
-      "base_fare": 30,
-      "points": 6
+    "pahartali_to_noapara": {
+      "from": "pahartali",
+      "to": "noapara",
+      "distance_km": 2.0,
+      "base_fare": 38,
+      "points": 9
+    },
+    "pahartali_to_raojan": {
+      "from": "pahartali",
+      "to": "raojan",
+      "distance_km": 4.5,
+      "base_fare": 60,
+      "points": 15
+    },
+    "noapara_to_cuet_campus": {
+      "from": "noapara",
+      "to": "cuet_campus",
+      "distance_km": 1.8,
+      "base_fare": 35,
+      "points": 8
+    },
+    "noapara_to_pahartali": {
+      "from": "noapara",
+      "to": "pahartali",
+      "distance_km": 2.0,
+      "base_fare": 38,
+      "points": 9
+    },
+    "noapara_to_raojan": {
+      "from": "noapara",
+      "to": "raojan",
+      "distance_km": 2.8,
+      "base_fare": 45,
+      "points": 11
+    },
+    "raojan_to_cuet_campus": {
+      "from": "raojan",
+      "to": "cuet_campus",
+      "distance_km": 3.2,
+      "base_fare": 50,
+      "points": 12
+    },
+    "raojan_to_pahartali": {
+      "from": "raojan",
+      "to": "pahartali",
+      "distance_km": 4.5,
+      "base_fare": 60,
+      "points": 15
+    },
+    "raojan_to_noapara": {
+      "from": "raojan",
+      "to": "noapara",
+      "distance_km": 2.8,
+      "base_fare": 45,
+      "points": 11
     }
   },
   "system_config": {
     "points_per_km": 3,
     "base_fare_per_km": 15,
-    "active_stations": 3,
-    "active_rickshaws": 2,
-    "version": "1.0.0"
+    "base_points": 10,
+    "gps_tolerance_excellent": 10,
+    "gps_tolerance_good": 50,
+    "gps_tolerance_acceptable": 100,
+    "request_timeout_seconds": 60,
+    "puller_accept_timeout_seconds": 30,
+    "active_blocks": 4,
+    "active_rickshaws": 5,
+    "version": "2.0.0",
+    "last_updated": "2025-11-14T12:00:00Z"
+  },
+  "admin_config": {
+    "pending_reviews": 1,
+    "total_system_rides": 8,
+    "total_points_distributed": 67,
+    "total_revenue": 343,
+    "average_gps_accuracy": 37.8
   }
 }

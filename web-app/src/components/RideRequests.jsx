@@ -1,14 +1,46 @@
 import React, { useEffect } from 'react';
-import { ref, update, get } from 'firebase/database';
+import { ref, update, get, remove } from 'firebase/database';
 import { database } from '../firebase';
-import { getStationName, getTimeAgo } from '../utils/helpers';
+import { getLocationName, getTimeAgo } from '../utils/helpers';
 
 function RideRequests({ pendingRequests, currentRickshawId, showToast }) {
+  // Audio notification for new requests (Test Case 6a)
   useEffect(() => {
     if (pendingRequests.length > 0) {
       console.log('🔔 New ride request notification');
+      
+      // Play notification sound
+      playNotificationSound();
+      
+      // Vibration alert (if supported)
+      if ('vibrate' in navigator) {
+        navigator.vibrate([200, 100, 200]);
+      }
     }
   }, [pendingRequests.length]);
+
+  const playNotificationSound = () => {
+    try {
+      // Create a simple beep sound
+      const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+      const oscillator = audioContext.createOscillator();
+      const gainNode = audioContext.createGain();
+      
+      oscillator.connect(gainNode);
+      gainNode.connect(audioContext.destination);
+      
+      oscillator.frequency.value = 800;
+      oscillator.type = 'sine';
+      
+      gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+      gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
+      
+      oscillator.start(audioContext.currentTime);
+      oscillator.stop(audioContext.currentTime + 0.5);
+    } catch (error) {
+      console.log('Audio notification not supported');
+    }
+  };
 
   const handleAcceptRide = async (requestId) => {
     if (!currentRickshawId) {
@@ -19,6 +51,7 @@ function RideRequests({ pendingRequests, currentRickshawId, showToast }) {
     console.log(`Accepting ride request: ${requestId}`);
 
     try {
+      // Get request data
       const requestSnapshot = await get(ref(database, `ride_requests/${requestId}`));
       const request = requestSnapshot.val();
 
@@ -27,33 +60,49 @@ function RideRequests({ pendingRequests, currentRickshawId, showToast }) {
         return;
       }
 
-      // Create ride object
+      // Check if already accepted by another rickshaw
+      if (request.status !== 'pending') {
+        showToast('This request has already been accepted', 'error');
+        return;
+      }
+
+      // Create active ride object
       const rideId = `ride_${Date.now()}`;
+      const currentTime = Date.now();
+      
       const ride = {
         id: rideId,
+        request_id: requestId,
         user_id: request.user_id || 'user_1',
         rickshaw_id: currentRickshawId,
-        pickup_station: request.pickup_station,
-        dropoff_station: request.dropoff_station,
+        pickup_block: request.pickup_block,
+        dropoff_block: request.dropoff_block,
         distance_km: request.distance_km,
         fare: request.estimated_fare,
-        points_earned: request.estimated_points,
+        points_earned: 0, // Will be calculated at drop-off
         status: 'accepted',
         request_time: request.timestamp,
-        accept_time: new Date().toISOString(),
+        accept_time: currentTime,
         pickup_time: null,
         dropoff_time: null,
+        pickup_location: null,
+        dropoff_location: null,
+        points_status: 'pending'
       };
 
-      // Update database
+      // Update database (Test Case 6b - acceptance confirmation)
       const updates = {};
-      updates[`rides/${rideId}`] = ride;
+      updates[`active_rides/${rideId}`] = ride;
       updates[`ride_requests/${requestId}/status`] = 'accepted';
+      updates[`ride_requests/${requestId}/assigned_rickshaw`] = currentRickshawId;
+      updates[`ride_requests/${requestId}/led_status`] = 'offer_incoming'; // Yellow LED ON
       updates[`rickshaws/${currentRickshawId}/status`] = 'busy';
 
       await update(ref(database), updates);
-      showToast('Ride accepted successfully!');
-      console.log('✅ Ride accepted');
+      
+      showToast('Ride accepted! User notified (Yellow LED ON)');
+      console.log('✅ Ride accepted - Yellow LED activated');
+      
     } catch (error) {
       showToast('Error accepting ride', 'error');
       console.error('❌ Error:', error);
@@ -83,18 +132,23 @@ function RideRequests({ pendingRequests, currentRickshawId, showToast }) {
         rejectedBy.push(currentRickshawId);
       }
 
+      // Update database - keep status as 'pending' for other rickshaws
       const updates = {};
       updates[`ride_requests/${requestId}/rejected_by`] = rejectedBy;
-      // Keep status as 'pending' so other rickshaws can still accept it
       
       await update(ref(database), updates);
-      showToast('Request rejected - other rickshaws can still accept it');
-      console.log('✅ Request rejected by this rickshaw');
+      
+      showToast('Request rejected - offer sent to next puller');
+      console.log('✅ Request rejected by this rickshaw - others can still accept');
+      
     } catch (error) {
       showToast('Error rejecting request', 'error');
       console.error('❌ Error:', error);
     }
   };
+
+  // Sort requests by time (oldest first for FIFO)
+  const sortedRequests = [...pendingRequests].sort((a, b) => a.timestamp - b.timestamp);
 
   return (
     <section className="requests-section">
@@ -105,14 +159,14 @@ function RideRequests({ pendingRequests, currentRickshawId, showToast }) {
         <span className="badge">{pendingRequests.length} pending</span>
       </div>
       <div className="requests-container">
-        {pendingRequests.length === 0 ? (
+        {sortedRequests.length === 0 ? (
           <div className="empty-state">
             <i className="fas fa-inbox"></i>
             <p>No pending requests</p>
-            <small>New ride requests will appear here</small>
+            <small>New ride requests will appear here with audio/vibration alert</small>
           </div>
         ) : (
-          pendingRequests.map((request) => (
+          sortedRequests.map((request) => (
             <div key={request.id} className="request-card">
               <div className="request-header">
                 <div className="request-time">
@@ -125,14 +179,14 @@ function RideRequests({ pendingRequests, currentRickshawId, showToast }) {
               <div className="request-route">
                 <div className="request-location">
                   <h4>Pickup</h4>
-                  <p>{getStationName(request.pickup_station)}</p>
+                  <p>{getLocationName(request.pickup_block)}</p>
                 </div>
                 <div className="request-arrow">
                   <i className="fas fa-arrow-right"></i>
                 </div>
                 <div className="request-location">
                   <h4>Drop-off</h4>
-                  <p>{getStationName(request.dropoff_station)}</p>
+                  <p>{getLocationName(request.dropoff_block)}</p>
                 </div>
               </div>
 
@@ -151,16 +205,24 @@ function RideRequests({ pendingRequests, currentRickshawId, showToast }) {
                 </div>
               </div>
 
+              {request.privilege_verified && (
+                <div className="privilege-badge">
+                  <i className="fas fa-check-circle"></i> Privilege Verified
+                </div>
+              )}
+
               <div className="request-actions">
                 <button
                   className="btn btn-success"
                   onClick={() => handleAcceptRide(request.id)}
+                  title="Accept ride (User's Yellow LED will turn ON)"
                 >
                   <i className="fas fa-check"></i> Accept Ride
                 </button>
                 <button
                   className="btn btn-danger"
                   onClick={() => handleRejectRide(request.id)}
+                  title="Reject (Offer goes to next puller)"
                 >
                   <i className="fas fa-times"></i> Reject
                 </button>
@@ -174,4 +236,3 @@ function RideRequests({ pendingRequests, currentRickshawId, showToast }) {
 }
 
 export default RideRequests;
-

@@ -1,16 +1,14 @@
 import React from 'react';
-import { getStationName } from '../utils/helpers';
+import { getLocationName, getPointsStatusBadge } from '../utils/helpers';
 
 function RideHistory({ rideHistory }) {
   return (
     <section className="history-section">
       <div className="section-header">
         <h2>
-          <i className="fas fa-history"></i> Ride History
+          <i className="fas fa-history"></i> Ride History (Last 10)
         </h2>
-        <button className="btn-secondary">
-          <i className="fas fa-sync-alt"></i> Refresh
-        </button>
+        <span className="badge">{rideHistory.length} rides</span>
       </div>
       <div className="history-container">
         {rideHistory.length === 0 ? (
@@ -21,9 +19,10 @@ function RideHistory({ rideHistory }) {
           </div>
         ) : (
           rideHistory.map((ride) => {
-            const pickupName = getStationName(ride.pickup_station);
-            const dropoffName = getStationName(ride.dropoff_station);
+            const pickupName = getLocationName(ride.pickup_block || ride.pickup_station);
+            const dropoffName = getLocationName(ride.dropoff_block || ride.dropoff_station);
             const date = new Date(ride.dropoff_time).toLocaleString();
+            const statusBadge = getPointsStatusBadge(ride.points_status || 'rewarded');
 
             return (
               <div key={ride.id} className="history-card">
@@ -53,8 +52,23 @@ function RideHistory({ rideHistory }) {
                   </div>
                   <div className="history-stat">
                     <i className="fas fa-star"></i>
-                    <span>+{ride.points_earned} pts</span>
+                    <span>+{ride.points_earned || 0} pts</span>
                   </div>
+                  {ride.dropoff_distance_from_block !== undefined && (
+                    <div className="history-stat">
+                      <i className="fas fa-map-marker-alt"></i>
+                      <span>{ride.dropoff_distance_from_block.toFixed(1)}m</span>
+                    </div>
+                  )}
+                </div>
+
+                <div className="history-footer">
+                  <span className={`badge ${statusBadge.class}`}>
+                    <i className={`fas fa-${statusBadge.icon}`}></i> {statusBadge.text}
+                  </span>
+                  {ride.points_status === 'pending' && (
+                    <small className="text-warning">Admin review required</small>
+                  )}
                 </div>
               </div>
             );
