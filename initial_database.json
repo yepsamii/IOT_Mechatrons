@@ -1,0 +1,129 @@
+{
+  "stations": {
+    "station_1": {
+      "id": "station_1",
+      "name": "Station A - University Gate",
+      "location": {
+        "lat": 22.4593,
+        "lng": 91.9871
+      },
+      "status": "active",
+      "created_at": "2025-11-14T10:00:00Z"
+    },
+    "station_2": {
+      "id": "station_2",
+      "name": "Station B - City Center",
+      "location": {
+        "lat": 22.4623,
+        "lng": 91.9901
+      },
+      "status": "active",
+      "created_at": "2025-11-14T10:00:00Z"
+    },
+    "station_3": {
+      "id": "station_3",
+      "name": "Station C - Market Area",
+      "location": {
+        "lat": 22.4653,
+        "lng": 91.9931
+      },
+      "status": "active",
+      "created_at": "2025-11-14T10:00:00Z"
+    }
+  },
+  "users": {
+    "user_1": {
+      "id": "user_1",
+      "name": "Ahmed Hassan",
+      "privilege_type": "premium",
+      "laser_id": "LASER_001",
+      "total_rides": 0,
+      "created_at": "2025-11-14T10:00:00Z"
+    },
+    "user_2": {
+      "id": "user_2",
+      "name": "Fatima Khan",
+      "privilege_type": "standard",
+      "laser_id": "LASER_002",
+      "total_rides": 0,
+      "created_at": "2025-11-14T10:00:00Z"
+    }
+  },
+  "rickshaws": {
+    "rickshaw_1": {
+      "id": "rickshaw_1",
+      "puller_name": "Karim Ahmed",
+      "license_number": "DH-RICK-001",
+      "current_station": "station_1",
+      "status": "available",
+      "total_points": 0,
+      "total_rides": 0,
+      "rating": 5.0,
+      "created_at": "2025-11-14T10:00:00Z"
+    },
+    "rickshaw_2": {
+      "id": "rickshaw_2",
+      "puller_name": "Rahim Khan",
+      "license_number": "DH-RICK-002",
+      "current_station": "station_2",
+      "status": "available",
+      "total_points": 0,
+      "total_rides": 0,
+      "rating": 5.0,
+      "created_at": "2025-11-14T10:00:00Z"
+    }
+  },
+  "rides": {},
+  "ride_requests": {},
+  "fare_matrix": {
+    "station_1_to_station_2": {
+      "from": "station_1",
+      "to": "station_2",
+      "distance_km": 2.5,
+      "base_fare": 40,
+      "points": 8
+    },
+    "station_1_to_station_3": {
+      "from": "station_1",
+      "to": "station_3",
+      "distance_km": 3.5,
+      "base_fare": 50,
+      "points": 10
+    },
+    "station_2_to_station_1": {
+      "from": "station_2",
+      "to": "station_1",
+      "distance_km": 2.5,
+      "base_fare": 40,
+      "points": 8
+    },
+    "station_2_to_station_3": {
+      "from": "station_2",
+      "to": "station_3",
+      "distance_km": 1.5,
+      "base_fare": 30,
+      "points": 6
+    },
+    "station_3_to_station_1": {
+      "from": "station_3",
+      "to": "station_1",
+      "distance_km": 3.5,
+      "base_fare": 50,
+      "points": 10
+    },
+    "station_3_to_station_2": {
+      "from": "station_3",
+      "to": "station_2",
+      "distance_km": 1.5,
+      "base_fare": 30,
+      "points": 6
+    }
+  },
+  "system_config": {
+    "points_per_km": 3,
+    "base_fare_per_km": 15,
+    "active_stations": 3,
+    "active_rickshaws": 2,
+    "version": "1.0.0"
+  }
+}
