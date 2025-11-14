@@ -72,7 +72,17 @@ function App() {
     const unsubscribe = onValue(requestsRef, (snapshot) => {
       const data = snapshot.val();
       if (data) {
-        const pending = Object.values(data).filter(req => req.status === 'pending');
+        const pending = Object.values(data).filter(req => {
+          // Show only pending requests that haven't been rejected by current rickshaw
+          if (req.status !== 'pending') return false;
+          
+          // If current rickshaw is selected, filter out requests they've rejected
+          if (currentRickshawId && req.rejected_by) {
+            return !req.rejected_by.includes(currentRickshawId);
+          }
+          
+          return true;
+        });
         setPendingRequests(pending);
       } else {
         setPendingRequests([]);
@@ -80,7 +90,7 @@ function App() {
     });
 
     return () => unsubscribe();
-  }, []);
+  }, [currentRickshawId]);
 
   // Listen for active rides
   useEffect(() => {

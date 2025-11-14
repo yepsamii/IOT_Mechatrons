@@ -61,14 +61,35 @@ function RideRequests({ pendingRequests, currentRickshawId, showToast }) {
   };
 
   const handleRejectRide = async (requestId) => {
+    if (!currentRickshawId) {
+      showToast('Please select a rickshaw first', 'error');
+      return;
+    }
+
     console.log(`Rejecting ride request: ${requestId}`);
 
     try {
+      const requestSnapshot = await get(ref(database, `ride_requests/${requestId}`));
+      const request = requestSnapshot.val();
+
+      if (!request) {
+        showToast('Request not found', 'error');
+        return;
+      }
+
+      // Add current rickshaw to rejected_by list
+      const rejectedBy = request.rejected_by || [];
+      if (!rejectedBy.includes(currentRickshawId)) {
+        rejectedBy.push(currentRickshawId);
+      }
+
       const updates = {};
-      updates[`ride_requests/${requestId}/status`] = 'rejected';
+      updates[`ride_requests/${requestId}/rejected_by`] = rejectedBy;
+      // Keep status as 'pending' so other rickshaws can still accept it
+      
       await update(ref(database), updates);
-      showToast('Request rejected');
-      console.log('✅ Request rejected');
+      showToast('Request rejected - other rickshaws can still accept it');
+      console.log('✅ Request rejected by this rickshaw');
     } catch (error) {
       showToast('Error rejecting request', 'error');
       console.error('❌ Error:', error);

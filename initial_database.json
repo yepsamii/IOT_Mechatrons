@@ -74,7 +74,21 @@
     }
   },
   "rides": {},
-  "ride_requests": {},
+  "ride_requests": {
+    "example_request": {
+      "id": "example_request",
+      "user_id": "user_1",
+      "pickup_station": "station_1",
+      "dropoff_station": "station_2",
+      "distance_km": 2.5,
+      "estimated_fare": 40,
+      "estimated_points": 8,
+      "privilege_verified": true,
+      "status": "pending",
+      "timestamp": "2025-11-14T12:00:00Z",
+      "rejected_by": []
+    }
+  },
   "fare_matrix": {
     "station_1_to_station_2": {
       "from": "station_1",

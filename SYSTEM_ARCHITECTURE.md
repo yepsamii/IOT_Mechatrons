@@ -164,7 +164,8 @@ A smart IoT-based rickshaw management system that connects passengers with ricks
       "distance_km": 2.5,
       "estimated_fare": 40,
       "estimated_points": 8,
-      "timestamp": "2025-11-14T11:00:00Z"
+      "timestamp": "2025-11-14T11:00:00Z",
+      "rejected_by": []
     }
   },
 
@@ -291,6 +292,7 @@ A smart IoT-based rickshaw management system that connects passengers with ricks
 
 - ✅ Real-time ride notifications
 - ✅ Accept/Reject rides instantly
+  - **Smart Rejection System**: When a rickshaw rejects a request, it only hides it from that specific rickshaw. Other rickshaws can still see and accept the same request. This ensures maximum ride fulfillment.
 - ✅ View passenger details
 - ✅ Track earnings and points
 - ✅ View ride history

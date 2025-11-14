@@ -51,6 +51,7 @@ The Smart Rickshaw Management System is an innovative IoT solution that connects
 
 - ✅ Real-time ride request notifications
 - ✅ Accept/Reject rides with one click
+  - Smart rejection: Rejecting a request only hides it from that rickshaw, allowing others to accept it
 - ✅ Active ride tracking
 - ✅ Confirm pickup and drop-off
 - ✅ Points and earnings tracking
