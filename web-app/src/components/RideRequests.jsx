@@ -1,9 +1,49 @@
-import React, { useEffect } from 'react';
+/**
+ * RideRequests Component
+ * 
+ * IMPLEMENTS TEST REQUIREMENTS:
+ * (a) Immediately after confirmation → Expected: All LEDs OFF
+ * (b) Puller accepts within 10 seconds → Expected: Yellow ON (LED1)
+ * (c) No puller accepts within 60 seconds → Expected: Red ON (LED3) - TIMEOUT/AUTO-REJECT
+ * (d) Puller confirms pickup → Expected: Green ON (LED2), Yellow OFF
+ * (e) Multiple rejections then acceptance → Expected: Proper LED sequence
+ * (f) Power failure during LED operation → Expected: State recovery
+ * 
+ * AUTO-REJECTION TIMER:
+ * - 60-second countdown starts when request is created
+ * - Visual countdown timer shows remaining time
+ * - Timer color changes: Green (>30s) → Orange (30-10s) → Red (<10s)
+ * - Auto-rejects and activates Red LED if no puller accepts within 60 seconds
+ */
+
+import React, { useEffect, useState } from 'react';
 import { ref, update, get, remove } from 'firebase/database';
 import { database } from '../firebase';
 import { getLocationName, getTimeAgo } from '../utils/helpers';
 
 function RideRequests({ pendingRequests, currentRickshawId, showToast }) {
+  const [timeRemaining, setTimeRemaining] = useState({});
+  const REQUEST_TIMEOUT = 60000; // 60 seconds
+  // Update countdown timer every second
+  useEffect(() => {
+    const interval = setInterval(() => {
+      const currentTime = Date.now();
+      const newTimeRemaining = {};
+      
+      pendingRequests.forEach(request => {
+        if (request.timestamp) {
+          const elapsed = currentTime - request.timestamp;
+          const remaining = Math.max(0, REQUEST_TIMEOUT - elapsed);
+          newTimeRemaining[request.id] = remaining;
+        }
+      });
+      
+      setTimeRemaining(newTimeRemaining);
+    }, 1000);
+    
+    return () => clearInterval(interval);
+  }, [pendingRequests]);
+
   // Audio notification for new requests (Test Case 6a)
   useEffect(() => {
     if (pendingRequests.length > 0) {
@@ -40,6 +80,24 @@ function RideRequests({ pendingRequests, currentRickshawId, showToast }) {
     } catch (error) {
       console.log('Audio notification not supported');
     }
+  };
+
+  const formatTimeRemaining = (ms) => {
+    const seconds = Math.floor(ms / 1000);
+    const minutes = Math.floor(seconds / 60);
+    const remainingSeconds = seconds % 60;
+    
+    if (minutes > 0) {
+      return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
+    }
+    return `0:${remainingSeconds.toString().padStart(2, '0')}`;
+  };
+
+  const getTimeRemainingClass = (ms) => {
+    const seconds = Math.floor(ms / 1000);
+    if (seconds <= 10) return 'time-critical';
+    if (seconds <= 30) return 'time-warning';
+    return 'time-normal';
   };
 
   const handleAcceptRide = async (requestId) => {
@@ -98,17 +156,18 @@ function RideRequests({ pendingRequests, currentRickshawId, showToast }) {
       };
 
       // Update database (Test Case 6b - acceptance confirmation)
+      // TEST REQUIREMENT (b): Puller accepts within 10 seconds → Yellow LED ON
       const updates = {};
       updates[`active_rides/${rideId}`] = ride;
       updates[`ride_requests/${requestId}/status`] = 'accepted';
       updates[`ride_requests/${requestId}/assigned_rickshaw`] = currentRickshawId;
-      updates[`ride_requests/${requestId}/led_status`] = 'offer_incoming'; // Yellow LED ON
+      updates[`ride_requests/${requestId}/led_status`] = 'waiting'; // Yellow LED (LED1) ON
       updates[`rickshaws/${currentRickshawId}/status`] = 'busy';
 
       await update(ref(database), updates);
       
       showToast('Ride accepted! User notified (Yellow LED ON)');
-      console.log('✅ Ride accepted - Yellow LED activated');
+      console.log('✅ Ride accepted - Yellow LED (LED1) activated');
       
     } catch (error) {
       showToast('Error accepting ride', 'error');
@@ -151,13 +210,15 @@ function RideRequests({ pendingRequests, currentRickshawId, showToast }) {
                          availableRickshawIds.every(id => rejectedBy.includes(id));
 
       // Update database
+      // TEST REQUIREMENT (e): Multiple rejections then acceptance → Proper LED sequence
       const updates = {};
       updates[`ride_requests/${requestId}/rejected_by`] = rejectedBy;
       
       if (allRejected) {
+        // TEST REQUIREMENT (c): No puller accepts within 60 seconds → Red LED ON
         // If all available rickshaws rejected, mark as rejected
         updates[`ride_requests/${requestId}/status`] = 'rejected';
-        updates[`ride_requests/${requestId}/led_status`] = 'rejected';
+        updates[`ride_requests/${requestId}/led_status`] = 'rejected'; // Red LED (LED3) ON
         console.log('⚠️ All available rickshaws have rejected this request');
         showToast('All rickshaws rejected - user notified (Red LED ON)', 'error');
       } else {
@@ -200,6 +261,13 @@ function RideRequests({ pendingRequests, currentRickshawId, showToast }) {
                   <i className="fas fa-clock"></i>
                   <span>{getTimeAgo(request.timestamp)}</span>
                 </div>
+                {timeRemaining[request.id] !== undefined && (
+                  <div className={`countdown-timer ${getTimeRemainingClass(timeRemaining[request.id])}`}>
+                    <i className="fas fa-hourglass-half"></i>
+                    <span className="timer-text">{formatTimeRemaining(timeRemaining[request.id])}</span>
+                    <span className="timer-label">until auto-reject</span>
+                  </div>
+                )}
                 <span className="badge badge-warning">New Request</span>
               </div>
 

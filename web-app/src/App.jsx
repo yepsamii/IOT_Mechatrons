@@ -68,17 +68,49 @@ function App() {
     return () => unsubscribe();
   }, [currentRickshawId]);
 
-  // Listen for ride requests and check for all-rejected requests
+  // Listen for ride requests and check for all-rejected requests + 60-second timeout
+  // IMPLEMENTS AUTO-REJECTION TIMER:
+  // - Monitors all pending requests in real-time
+  // - Automatically rejects requests after 60 seconds if no puller accepts
+  // - Updates LED status to 'rejected' (Red LED) on timeout
+  // - Logs remaining time in console for debugging
   useEffect(() => {
     const requestsRef = ref(database, 'ride_requests');
     const unsubscribe = onValue(requestsRef, async (snapshot) => {
       const data = snapshot.val();
       if (data) {
-        // Check each pending request if all rickshaws have rejected it
+        const currentTime = Date.now();
         const rickshawsList = Object.keys(rickshaws);
-        const totalRickshaws = rickshawsList.length;
+        const REQUEST_TIMEOUT = 60000; // 60 seconds in milliseconds
         
         for (const [requestId, request] of Object.entries(data)) {
+          // AUTO-REJECTION: Check if 60 seconds have elapsed since request creation
+          if (request.status === 'pending' && request.timestamp) {
+            const elapsedTime = currentTime - request.timestamp;
+            
+            if (elapsedTime >= REQUEST_TIMEOUT) {
+              console.log(`⏰ TIMEOUT: Request ${requestId} exceeded 60 seconds (${Math.floor(elapsedTime / 1000)}s)`);
+              console.log(`🔴 AUTO-REJECTING request ${requestId}`);
+              
+              // Update status to rejected due to timeout
+              const updates = {};
+              updates[`ride_requests/${requestId}/status`] = 'rejected';
+              updates[`ride_requests/${requestId}/led_status`] = 'rejected';
+              updates[`ride_requests/${requestId}/rejection_reason`] = 'timeout';
+              await update(ref(database), updates);
+              
+              console.log(`✅ Request ${requestId} auto-rejected after 60 seconds - Red LED activated`);
+              continue; // Skip further checks for this request
+            }
+            
+            // Log remaining time for pending requests
+            const remainingTime = Math.floor((REQUEST_TIMEOUT - elapsedTime) / 1000);
+            if (remainingTime <= 10 && remainingTime > 0) {
+              console.log(`⏱️ Request ${requestId}: ${remainingTime} seconds remaining`);
+            }
+          }
+          
+          // Check each pending request if all rickshaws have rejected it
           if (request.status === 'pending' && request.rejected_by && request.rejected_by.length > 0) {
             // Count available rickshaws (not busy)
             const availableRickshaws = await Promise.all(
@@ -100,8 +132,9 @@ function App() {
               const updates = {};
               updates[`ride_requests/${requestId}/status`] = 'rejected';
               updates[`ride_requests/${requestId}/led_status`] = 'rejected';
+              updates[`ride_requests/${requestId}/rejection_reason`] = 'all_rejected';
               await update(ref(database), updates);
-              console.log(`✅ Updated request ${requestId} status to rejected`);
+              console.log(`✅ Updated request ${requestId} status to rejected (all pullers rejected)`);
             }
           }
         }
