@@ -22,7 +22,7 @@ function Header({ rickshaws, currentRickshawId, currentRickshaw, onRickshawSelec
         <div className="header-content">
           <div className="logo">
             <i className="fas fa-taxi"></i>
-            <h1>Smart Rickshaw</h1>
+            <h1>Smart Rickshaw - AERAS</h1>
           </div>
           <div className="header-info">
             <div className="rickshaw-selector">
