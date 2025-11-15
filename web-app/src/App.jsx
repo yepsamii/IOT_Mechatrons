@@ -68,6 +68,51 @@ function App() {
     return () => unsubscribe();
   }, [currentRickshawId]);
 
+  // Continuous timeout checker - runs every second independently
+  useEffect(() => {
+    const REQUEST_TIMEOUT = 60000; // 60 seconds in milliseconds
+    
+    const checkTimeouts = async () => {
+      try {
+        const requestsSnapshot = await get(ref(database, 'ride_requests'));
+        const data = requestsSnapshot.val();
+        
+        if (data) {
+          const currentTime = Date.now();
+          
+          for (const [requestId, request] of Object.entries(data)) {
+            if (request.status === 'pending' && request.timestamp) {
+              const elapsedTime = currentTime - request.timestamp;
+              
+              if (elapsedTime >= REQUEST_TIMEOUT) {
+                console.log(`⏰ TIMEOUT: Request ${requestId} exceeded 60 seconds (${Math.floor(elapsedTime / 1000)}s)`);
+                console.log(`🔴 AUTO-REJECTING request ${requestId}`);
+                
+                const updates = {};
+                updates[`ride_requests/${requestId}/status`] = 'rejected';
+                updates[`ride_requests/${requestId}/led_status`] = 'rejected';
+                updates[`ride_requests/${requestId}/rejection_reason`] = 'timeout';
+                await update(ref(database), updates);
+                
+                console.log(`✅ Request ${requestId} auto-rejected after 60 seconds - Red LED activated`);
+              }
+            }
+          }
+        }
+      } catch (error) {
+        console.error('Error checking timeouts:', error);
+      }
+    };
+    
+    // Check for timeouts every second
+    const interval = setInterval(checkTimeouts, 1000);
+    
+    // Run once immediately
+    checkTimeouts();
+    
+    return () => clearInterval(interval);
+  }, []);
+
   // Listen for ride requests and check for all-rejected requests + 60-second timeout
   // IMPLEMENTS AUTO-REJECTION TIMER:
   // - Monitors all pending requests in real-time
@@ -84,31 +129,6 @@ function App() {
         const REQUEST_TIMEOUT = 60000; // 60 seconds in milliseconds
         
         for (const [requestId, request] of Object.entries(data)) {
-          // AUTO-REJECTION: Check if 60 seconds have elapsed since request creation
-          if (request.status === 'pending' && request.timestamp) {
-            const elapsedTime = currentTime - request.timestamp;
-            
-            if (elapsedTime >= REQUEST_TIMEOUT) {
-              console.log(`⏰ TIMEOUT: Request ${requestId} exceeded 60 seconds (${Math.floor(elapsedTime / 1000)}s)`);
-              console.log(`🔴 AUTO-REJECTING request ${requestId}`);
-              
-              // Update status to rejected due to timeout
-              const updates = {};
-              updates[`ride_requests/${requestId}/status`] = 'rejected';
-              updates[`ride_requests/${requestId}/led_status`] = 'rejected';
-              updates[`ride_requests/${requestId}/rejection_reason`] = 'timeout';
-              await update(ref(database), updates);
-              
-              console.log(`✅ Request ${requestId} auto-rejected after 60 seconds - Red LED activated`);
-              continue; // Skip further checks for this request
-            }
-            
-            // Log remaining time for pending requests
-            const remainingTime = Math.floor((REQUEST_TIMEOUT - elapsedTime) / 1000);
-            if (remainingTime <= 10 && remainingTime > 0) {
-              console.log(`⏱️ Request ${requestId}: ${remainingTime} seconds remaining`);
-            }
-          }
           
           // Check each pending request if all rickshaws have rejected it
           if (request.status === 'pending' && request.rejected_by && request.rejected_by.length > 0) {
