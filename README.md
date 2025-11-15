@@ -8,10 +8,12 @@
 ## 🎯 Overview
 
 **AERAS** is an accessible e-rickshaw management system designed for:
+
 - 👴 **Senior Citizens (≥60 years)**
 - 🧩 **Autistic & Special Needs Individuals**
 
 ### Key Features
+
 - **Physical Location Blocks** - No smartphone needed
 - **LED Status System** - Visual feedback (Yellow/Red/Green)
 - **GPS Verification** - Accurate drop-off tracking
@@ -57,6 +59,7 @@ Open: http://localhost:5173
 ### What Gets Tested
 
 ✅ **10 Automated Test Cases:**
+
 1. Database Connection
 2. Data Integrity
 3. Create Ride Request
@@ -82,6 +85,7 @@ Open: http://localhost:5173
 ### Web Dashboard Features
 
 **For Rickshaw Pullers:**
+
 - Real-time ride notifications (audio/vibration)
 - Accept/Reject rides (<30 sec timeout)
 - GPS pickup confirmation (Green LED trigger)
@@ -90,11 +94,13 @@ Open: http://localhost:5173
 - Ride history (last 10 rides)
 
 **LED Status System:**
+
 - 🟡 **Yellow LED** - Rickshaw accepted (coming)
 - 🔴 **Red LED** - Rejected or timeout
 - 🟢 **Green LED** - Pickup confirmed (arrived)
 
 **GPS Point Calculation:**
+
 ```
 Base Points = 10
 Distance Penalty = (Distance from Block / 10m)
@@ -112,12 +118,14 @@ Examples:
 ## 🗄️ Database Structure
 
 ### Location Blocks
+
 - CUET Campus: `22.4633°N, 91.9714°E`
 - Pahartali: `22.4725°N, 91.9845°E`
 - Noapara: `22.4580°N, 91.9920°E`
 - Raojan: `22.4520°N, 91.9650°E`
 
 ### Collections
+
 ```
 /location_blocks/    - 4 blocks
 /users/             - 5 users (elderly & special needs)
@@ -134,6 +142,7 @@ Examples:
 ## 🛠️ Technology Stack
 
 ### Frontend
+
 - **React 18** - UI library
 - **Vite** - Build tool
 - **JavaScript ES6+** - Logic
@@ -141,6 +150,7 @@ Examples:
 - **Firebase SDK** - Real-time database
 
 ### Backend
+
 - **Firebase Realtime Database** - NoSQL cloud database
 - **Firebase Authentication** - User auth (optional)
 
@@ -168,6 +178,7 @@ Examples:
 ## 🎓 Test Case Details
 
 ### Critical Tests (Must Pass)
+
 - ✅ Ride acceptance creates active ride
 - ✅ Pickup confirmation triggers Green LED
 - ✅ Drop-off GPS verification works
@@ -175,6 +186,7 @@ Examples:
 - ✅ Real-time sync <3 seconds
 
 ### System Requirements
+
 - **Minimum Pass Rate:** 95%
 - **Sync Latency:** <3 seconds
 - **Point Accuracy:** ±1 point
@@ -217,25 +229,43 @@ const firebaseConfig = {
   apiKey: "AIzaSyCyPJA1r5HQKGPKT_xRPio1Yzafgu1pxAI",
   authDomain: "rickshaw-ride-c5683.firebaseapp.com",
   projectId: "rickshaw-ride-c5683",
-  databaseURL: "https://rickshaw-ride-c5683-default-rtdb.asia-southeast1.firebasedatabase.app"
+  databaseURL:
+    "https://rickshaw-ride-c5683-default-rtdb.asia-southeast1.firebasedatabase.app",
 };
 ```
+
+### CI/CD Deployment
+
+**Automatic Vercel Deployment** is configured for the main branch!
+
+- **Push to Main** → Automatic deployment to Vercel
+- **See:** `CICD_SETUP.md` for full setup instructions
+- **Status:** View deployments in GitHub Actions tab
+
+**Setup Required:**
+
+1. Add GitHub Secrets (VERCEL_TOKEN, VERCEL_ORG_ID, VERCEL_PROJECT_ID)
+2. Push to main branch
+3. Deployment happens automatically!
 
 ---
 
 ## 🐛 Troubleshooting
 
 ### "Firebase disconnected"
+
 - Check: Internet connection
 - Verify: Firebase URL is correct
 - Check: Firebase Console → Database → Rules
 
 ### "Tests failing"
+
 - Import: `initial_database.json` first
 - Verify: All rickshaws and locations exist
 - Check: Firebase Console for errors
 
 ### "GPS not working"
+
 - Allow: Browser location permission
 - Note: GPS tests use simulated data
 - Real GPS: More accurate on mobile devices
@@ -255,6 +285,7 @@ const firebaseConfig = {
 ## ✅ Acceptance Criteria
 
 **Production Ready When:**
+
 - ✅ Test pass rate ≥95%
 - ✅ All critical tests pass
 - ✅ Real-time sync <3 sec
@@ -267,6 +298,7 @@ const firebaseConfig = {
 ## 🎯 Competition Features
 
 ### Innovation Points
+
 1. **Accessibility First** - Physical blocks for non-tech users
 2. **LED Feedback** - Visual status without screens
 3. **GPS Accuracy** - Fair point distribution
@@ -274,6 +306,7 @@ const firebaseConfig = {
 5. **Real-time System** - Sub-3-second updates
 
 ### System Highlights
+
 - **Zero Mobile App** for users
 - **3-Second Sync** across all devices
 - **95%+ Reliability** (test validated)
