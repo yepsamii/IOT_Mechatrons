@@ -70,6 +70,13 @@ function RideRequests({ pendingRequests, currentRickshawId, showToast }) {
       const rideId = `ride_${Date.now()}`;
       const currentTime = Date.now();
       
+      // Validate required fields to prevent undefined values
+      if (!request.pickup_block || !request.dropoff_block) {
+        showToast('Invalid request: missing location data', 'error');
+        console.error('❌ Missing required fields:', request);
+        return;
+      }
+      
       const ride = {
         id: rideId,
         request_id: requestId,
@@ -77,11 +84,11 @@ function RideRequests({ pendingRequests, currentRickshawId, showToast }) {
         rickshaw_id: currentRickshawId,
         pickup_block: request.pickup_block,
         dropoff_block: request.dropoff_block,
-        distance_km: request.distance_km,
-        fare: request.estimated_fare,
+        distance_km: request.distance_km || 0,
+        fare: request.estimated_fare || 0,
         points_earned: 0, // Will be calculated at drop-off
         status: 'accepted',
-        request_time: request.timestamp,
+        request_time: request.timestamp || currentTime, // Fallback to current time if timestamp is undefined
         accept_time: currentTime,
         pickup_time: null,
         dropoff_time: null,
