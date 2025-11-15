@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { ref, onValue } from 'firebase/database';
+import { ref, onValue, update, get } from 'firebase/database';
 import { database } from './firebase';
 import Header from './components/Header';
 import StatisticsCards from './components/StatisticsCards';
@@ -68,12 +68,44 @@ function App() {
     return () => unsubscribe();
   }, [currentRickshawId]);
 
-  // Listen for ride requests
+  // Listen for ride requests and check for all-rejected requests
   useEffect(() => {
     const requestsRef = ref(database, 'ride_requests');
-    const unsubscribe = onValue(requestsRef, (snapshot) => {
+    const unsubscribe = onValue(requestsRef, async (snapshot) => {
       const data = snapshot.val();
       if (data) {
+        // Check each pending request if all rickshaws have rejected it
+        const rickshawsList = Object.keys(rickshaws);
+        const totalRickshaws = rickshawsList.length;
+        
+        for (const [requestId, request] of Object.entries(data)) {
+          if (request.status === 'pending' && request.rejected_by && request.rejected_by.length > 0) {
+            // Count available rickshaws (not busy)
+            const availableRickshaws = await Promise.all(
+              rickshawsList.map(async (id) => {
+                const rickshawSnapshot = await get(ref(database, `rickshaws/${id}`));
+                const rickshaw = rickshawSnapshot.val();
+                return rickshaw && rickshaw.status === 'available' ? id : null;
+              })
+            );
+            const availableRickshawIds = availableRickshaws.filter(id => id !== null);
+            
+            // Check if all available rickshaws have rejected
+            const allRejected = availableRickshawIds.length > 0 && 
+                               availableRickshawIds.every(id => request.rejected_by.includes(id));
+            
+            if (allRejected) {
+              console.log(`⚠️ All rickshaws rejected request: ${requestId}`);
+              // Update status to rejected
+              const updates = {};
+              updates[`ride_requests/${requestId}/status`] = 'rejected';
+              updates[`ride_requests/${requestId}/led_status`] = 'rejected';
+              await update(ref(database), updates);
+              console.log(`✅ Updated request ${requestId} status to rejected`);
+            }
+          }
+        }
+        
         const pending = Object.values(data).filter(req => {
           // Show only pending requests that haven't been rejected by current rickshaw
           if (req.status !== 'pending') return false;
@@ -92,7 +124,7 @@ function App() {
     });
 
     return () => unsubscribe();
-  }, [currentRickshawId]);
+  }, [currentRickshawId, rickshaws]);
 
   // Listen for active rides (updated for AERAS)
   useEffect(() => {

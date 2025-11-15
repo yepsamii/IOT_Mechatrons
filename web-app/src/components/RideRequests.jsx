@@ -139,14 +139,34 @@ function RideRequests({ pendingRequests, currentRickshawId, showToast }) {
         rejectedBy.push(currentRickshawId);
       }
 
-      // Update database - keep status as 'pending' for other rickshaws
+      // Get all available rickshaws to check if all have rejected
+      const rickshawsSnapshot = await get(ref(database, 'rickshaws'));
+      const allRickshaws = rickshawsSnapshot.val();
+      const availableRickshawIds = Object.entries(allRickshaws || {})
+        .filter(([id, rickshaw]) => rickshaw.status === 'available')
+        .map(([id]) => id);
+
+      // Check if all available rickshaws have rejected
+      const allRejected = availableRickshawIds.length > 0 && 
+                         availableRickshawIds.every(id => rejectedBy.includes(id));
+
+      // Update database
       const updates = {};
       updates[`ride_requests/${requestId}/rejected_by`] = rejectedBy;
       
-      await update(ref(database), updates);
+      if (allRejected) {
+        // If all available rickshaws rejected, mark as rejected
+        updates[`ride_requests/${requestId}/status`] = 'rejected';
+        updates[`ride_requests/${requestId}/led_status`] = 'rejected';
+        console.log('⚠️ All available rickshaws have rejected this request');
+        showToast('All rickshaws rejected - user notified (Red LED ON)', 'error');
+      } else {
+        // Keep status as 'pending' for other rickshaws
+        showToast('Request rejected - offer sent to next puller');
+        console.log('✅ Request rejected by this rickshaw - others can still accept');
+      }
       
-      showToast('Request rejected - offer sent to next puller');
-      console.log('✅ Request rejected by this rickshaw - others can still accept');
+      await update(ref(database), updates);
       
     } catch (error) {
       showToast('Error rejecting request', 'error');
