@@ -58,25 +58,26 @@ Open: http://localhost:5173
 
 ### What Gets Tested
 
-✅ **10 Automated Test Cases:**
+✅ **10 Comprehensive Test Cases:**
 
-1. Database Connection
-2. Data Integrity
-3. Create Ride Request
-4. Accept Ride
-5. LED Status Updates
-6. Reject Ride
-7. Pickup Confirmation
-8. Point Calculation
-9. Complete Ride
-10. Real-time Sync
+1. **Database Connection** - Validates Firebase Realtime Database connectivity and ensures all services are operational
+2. **Data Integrity** - Verifies presence of required collections (location_blocks, rickshaws, users, fare_matrix)
+3. **Create Ride Request** - Tests request creation with proper fields (pickup, dropoff, distance, fare, LED status)
+4. **Accept Ride** - Validates acceptance flow, creates active ride, updates LED to "waiting" (Yellow LED)
+5. **LED Status Updates** - Tests all LED states: offer_incoming, pickup_confirmed, rejected, expired
+6. **Reject Ride** - Verifies rejection system, rejected_by array tracking, and multi-rickshaw handling
+7. **Pickup Confirmation** - Tests GPS pickup verification, location accuracy, and status transitions
+8. **Point Calculation** - Validates reward formula: `10 - (distance/10)`, tests edge cases (0m to 100m)
+9. **Complete Ride** - Tests ride completion flow, points recording, and cleanup of active rides
+10. **Real-time Sync** - Measures database latency, ensures updates propagate within 3 seconds
 
 ### Test Results
 
 - **Pass Rate:** Must be ≥95% for production
-- **Real-time Display:** See results as tests run
-- **Summary Stats:** Passed/Failed counts
-- **Detailed Logs:** Each test shows pass/fail with message
+- **Real-time Display:** See results as tests run with live progress indicators
+- **Summary Stats:** Passed/Failed counts with percentage
+- **Detailed Logs:** Each test shows pass/fail with descriptive message
+- **Performance Metrics:** Sync latency and response times tracked
 
 ---
 

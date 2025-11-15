@@ -17,13 +17,46 @@
  */
 
 import React, { useEffect, useState } from "react";
-import { ref, update, get, remove } from "firebase/database";
+import { ref, update, get, remove, set } from "firebase/database";
 import { database } from "../firebase";
 import { getLocationName, getTimeAgo } from "../utils/helpers";
 
 function RideRequests({ pendingRequests, currentRickshawId, showToast }) {
   const [timeRemaining, setTimeRemaining] = useState({});
+  const [showCreateModal, setShowCreateModal] = useState(false);
+  const [locationBlocks, setLocationBlocks] = useState([]);
+  const [users, setUsers] = useState([]);
+  const [formData, setFormData] = useState({
+    user_id: "",
+    pickup_block: "",
+    dropoff_block: "",
+  });
   const REQUEST_TIMEOUT = 60000; // 60 seconds
+
+  // Load location blocks and users on component mount
+  useEffect(() => {
+    const loadData = async () => {
+      try {
+        // Load location blocks
+        const blocksSnapshot = await get(ref(database, "location_blocks"));
+        if (blocksSnapshot.exists()) {
+          const blocksData = blocksSnapshot.val();
+          setLocationBlocks(Object.values(blocksData));
+        }
+
+        // Load users
+        const usersSnapshot = await get(ref(database, "users"));
+        if (usersSnapshot.exists()) {
+          const usersData = usersSnapshot.val();
+          setUsers(Object.values(usersData));
+        }
+      } catch (error) {
+        console.error("Error loading data:", error);
+      }
+    };
+
+    loadData();
+  }, []);
 
   // Update countdown timer every second
   useEffect(() => {
@@ -269,6 +302,137 @@ function RideRequests({ pendingRequests, currentRickshawId, showToast }) {
     }
   };
 
+  // Calculate distance between two coordinates (Haversine formula)
+  const calculateDistance = (lat1, lng1, lat2, lng2) => {
+    const R = 6371; // Earth's radius in km
+    const dLat = ((lat2 - lat1) * Math.PI) / 180;
+    const dLng = ((lng2 - lng1) * Math.PI) / 180;
+    const a =
+      Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+      Math.cos((lat1 * Math.PI) / 180) *
+        Math.cos((lat2 * Math.PI) / 180) *
+        Math.sin(dLng / 2) *
+        Math.sin(dLng / 2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    return R * c;
+  };
+
+  // Calculate estimated points based on distance
+  const calculatePoints = (distance) => {
+    const basePoints = 10;
+    const distanceInMeters = distance * 1000;
+    const penalty = distanceInMeters / 10.0;
+    return Math.max(0, Math.floor(basePoints - penalty));
+  };
+
+  // Calculate estimated fare (simplified - can be enhanced)
+  const calculateFare = (distance) => {
+    const baseFare = 30;
+    const perKmRate = 15;
+    return Math.round(baseFare + distance * perKmRate);
+  };
+
+  // Handle form input changes
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
+  // Handle create new request
+  const handleCreateRequest = async (e) => {
+    e.preventDefault();
+
+    // Validation
+    if (
+      !formData.user_id ||
+      !formData.pickup_block ||
+      !formData.dropoff_block
+    ) {
+      showToast("Please fill in all fields", "error");
+      return;
+    }
+
+    if (formData.pickup_block === formData.dropoff_block) {
+      showToast("Pickup and dropoff locations must be different", "error");
+      return;
+    }
+
+    try {
+      // Get location coordinates
+      const pickupBlock = locationBlocks.find(
+        (block) => block.id === formData.pickup_block
+      );
+      const dropoffBlock = locationBlocks.find(
+        (block) => block.id === formData.dropoff_block
+      );
+
+      if (!pickupBlock || !dropoffBlock) {
+        showToast("Invalid location selection", "error");
+        return;
+      }
+
+      // Calculate distance, fare, and points
+      const distance = calculateDistance(
+        pickupBlock.coordinates.lat,
+        pickupBlock.coordinates.lng,
+        dropoffBlock.coordinates.lat,
+        dropoffBlock.coordinates.lng
+      );
+      const fare = calculateFare(distance);
+      const points = calculatePoints(distance);
+
+      // Get user data
+      const userSnapshot = await get(
+        ref(database, `users/${formData.user_id}`)
+      );
+      const userData = userSnapshot.val();
+
+      if (!userData) {
+        showToast("User not found", "error");
+        return;
+      }
+
+      // Create request object
+      const requestId = `req_${Date.now()}`;
+      const requestData = {
+        id: requestId,
+        user_id: formData.user_id,
+        user_name: userData.name,
+        pickup_block: formData.pickup_block,
+        dropoff_block: formData.dropoff_block,
+        distance_km: parseFloat(distance.toFixed(2)),
+        estimated_fare: fare,
+        estimated_points: points,
+        privilege_verified: userData.privilege_verified || false,
+        status: "pending",
+        timestamp: Date.now(),
+        rejected_by: [],
+        led_status: "waiting",
+        created_via: "web_dashboard",
+      };
+
+      // Save to database
+      await set(ref(database, `ride_requests/${requestId}`), requestData);
+
+      showToast("Request created successfully!", "success");
+      console.log("✅ New request created:", requestId);
+
+      // Reset form and close modal
+      setFormData({
+        user_id: "",
+        pickup_block: "",
+        dropoff_block: "",
+      });
+      setShowCreateModal(false);
+    } catch (error) {
+      showToast("Error creating request", "error");
+      console.error("❌ Error:", error);
+    }
+  };
+
   // Sort requests by time (oldest first for FIFO)
   const sortedRequests = [...pendingRequests].sort(
     (a, b) => a.timestamp - b.timestamp
@@ -280,8 +444,142 @@ function RideRequests({ pendingRequests, currentRickshawId, showToast }) {
         <h2>
           <i className="fas fa-bell"></i> Incoming Ride Requests
         </h2>
-        <span className="badge">{pendingRequests.length} pending</span>
+        <div className="header-actions">
+          <span className="badge">{pendingRequests.length} pending</span>
+          <button
+            className="btn btn-primary create-request-btn"
+            onClick={() => setShowCreateModal(true)}
+            title="Create a new ride request manually"
+          >
+            <i className="fas fa-plus"></i> Create New Request
+          </button>
+        </div>
       </div>
+
+      {/* Create Request Modal */}
+      {showCreateModal && (
+        <div
+          className="modal-overlay"
+          onClick={() => setShowCreateModal(false)}
+        >
+          <div
+            className="modal-content"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="modal-header">
+              <h3>
+                <i className="fas fa-plus-circle"></i> Create New Ride Request
+              </h3>
+              <button
+                className="modal-close"
+                onClick={() => setShowCreateModal(false)}
+              >
+                <i className="fas fa-times"></i>
+              </button>
+            </div>
+
+            <form
+              className="create-request-form"
+              onSubmit={handleCreateRequest}
+            >
+              <div className="form-group">
+                <label htmlFor="user_id">
+                  <i className="fas fa-user"></i> Select User
+                </label>
+                <select
+                  id="user_id"
+                  name="user_id"
+                  value={formData.user_id}
+                  onChange={handleInputChange}
+                  required
+                >
+                  <option value="">-- Select a user --</option>
+                  {users.map((user) => (
+                    <option
+                      key={user.id}
+                      value={user.id}
+                    >
+                      {user.name} ({user.user_type})
+                      {user.privilege_verified && " ✓"}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="pickup_block">
+                  <i className="fas fa-map-marker-alt"></i> Pickup Location
+                </label>
+                <select
+                  id="pickup_block"
+                  name="pickup_block"
+                  value={formData.pickup_block}
+                  onChange={handleInputChange}
+                  required
+                >
+                  <option value="">-- Select pickup location --</option>
+                  {locationBlocks.map((block) => (
+                    <option
+                      key={block.id}
+                      value={block.id}
+                    >
+                      {block.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="dropoff_block">
+                  <i className="fas fa-flag-checkered"></i> Drop-off Location
+                </label>
+                <select
+                  id="dropoff_block"
+                  name="dropoff_block"
+                  value={formData.dropoff_block}
+                  onChange={handleInputChange}
+                  required
+                >
+                  <option value="">-- Select drop-off location --</option>
+                  {locationBlocks.map((block) => (
+                    <option
+                      key={block.id}
+                      value={block.id}
+                    >
+                      {block.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="form-info">
+                <i className="fas fa-info-circle"></i>
+                <p>
+                  Distance, fare, and points will be calculated automatically
+                  based on the selected locations.
+                </p>
+              </div>
+
+              <div className="form-actions">
+                <button
+                  type="button"
+                  className="btn btn-secondary"
+                  onClick={() => setShowCreateModal(false)}
+                >
+                  <i className="fas fa-times"></i> Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="btn btn-success"
+                >
+                  <i className="fas fa-check"></i> Create Request
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
       <div className="requests-container">
         {sortedRequests.length === 0 ? (
           <div className="empty-state">
