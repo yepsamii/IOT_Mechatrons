@@ -5,15 +5,14 @@ import { initializeApp } from "firebase/app";
 import { getDatabase } from "firebase/database";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyCyPJA1r5HQKGPKT_xRPio1Yzafgu1pxAI",
-  authDomain: "rickshaw-ride-c5683.firebaseapp.com",
-  projectId: "rickshaw-ride-c5683",
-  storageBucket: "rickshaw-ride-c5683.firebasestorage.app",
-  messagingSenderId: "899569287338",
-  appId: "1:899569287338:web:f5bc28bcd16ee6766050d3",
-  measurementId: "G-PVHYN92J0X",
-  databaseURL:
-    "https://rickshaw-ride-c5683-default-rtdb.asia-southeast1.firebasedatabase.app",
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
+  appId: import.meta.env.VITE_FIREBASE_APP_ID,
+  measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID,
+  databaseURL: import.meta.env.VITE_FIREBASE_DATABASE_URL,
 };
 
 // Initialize Firebase

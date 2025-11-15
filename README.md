@@ -23,6 +23,14 @@
 
 ---
 
+## 🌐 Live Demo
+
+**Production URL:** [https://rickshaw-ride.vercel.app/](https://rickshaw-ride.vercel.app/)
+
+> 🎉 **Fully deployed and ready to use!** Try the live application with automated testing features.
+
+---
+
 ## 🚀 Quick Start
 
 ### 1. Import Database
@@ -239,6 +247,7 @@ const firebaseConfig = {
 
 **Automatic Vercel Deployment** is configured for the main branch!
 
+- **Production URL:** [https://rickshaw-ride.vercel.app/](https://rickshaw-ride.vercel.app/)
 - **Push to Main** → Automatic deployment to Vercel
 - **See:** `CICD_SETUP.md` for full setup instructions
 - **Status:** View deployments in GitHub Actions tab
